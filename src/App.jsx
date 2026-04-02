@@ -1,1027 +1,1069 @@
-import { useState, useEffect, useRef } from "react";
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terrasope — Mine-Site Intelligence Platform</title>
+<meta name="description" content="AI sensor platforms for critical mineral exploration and production. From drill core to concentrate.">
+<meta property="og:title" content="Terrasope — Mine-Site Intelligence">
+<meta property="og:description" content="Ruggedized AI sensor platforms for critical mineral exploration and production.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://terrasope.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-const COLORS = {
-  bg: "#0A0B0D",
-  bgCard: "#111318",
-  bgCardHover: "#181B22",
-  border: "#1E2028",
-  borderLight: "#2A2D38",
-  text: "#E8E9EC",
-  textMuted: "#8B8F9E",
-  textDim: "#5C6070",
-  gold: "#C9923E",
-  goldLight: "#E4B565",
-  goldDim: "rgba(201,146,62,0.12)",
-  cyan: "#3BA4B5",
-  cyanLight: "#5CC5D6",
-  cyanDim: "rgba(59,164,181,0.10)",
-  white: "#FFFFFF",
-};
+:root {
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-body: 'Instrument Sans', system-ui, sans-serif;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 6px;
+}
 
-const styles = {
-  global: `
-    @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
-    
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    
-    body {
-      background: ${COLORS.bg};
-      color: ${COLORS.text};
-      font-family: 'DM Sans', sans-serif;
-      -webkit-font-smoothing: antialiased;
-      overflow-x: hidden;
-    }
+/* ═══════════════════════════════════════════
+   LIGHT THEME
+   ═══════════════════════════════════════════ */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-page: #f8f9fa;
+  --bg-subtle: #f1f3f5;
+  --bg-card: #ffffff;
+  --bg-card-hover: #fcfcfd;
+  --accent: #0d6e4f;
+  --accent-light: #10a06c;
+  --accent-soft: rgba(13,110,79,0.07);
+  --accent-softer: rgba(13,110,79,0.03);
+  --accent-border: rgba(13,110,79,0.12);
+  --accent-glow: rgba(13,110,79,0.06);
+  --text: #0f1419;
+  --text-secondary: #525a65;
+  --text-tertiary: #98a1ad;
+  --border: rgba(0,0,0,0.06);
+  --border-subtle: rgba(0,0,0,0.03);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.02);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+  --shadow-card: 0 0 0 1px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 0 0 1px rgba(13,110,79,0.08), 0 8px 24px rgba(0,0,0,0.08);
+  --nav-bg: rgba(255,255,255,0.82);
+  --nav-border: rgba(0,0,0,0.05);
+  --hero-gradient: radial-gradient(ellipse 80% 50% at 70% 40%, rgba(13,110,79,0.04), transparent 70%),
+                   radial-gradient(ellipse 60% 60% at 10% 80%, rgba(13,110,79,0.02), transparent);
+  --tag-bg: #ecfdf5;
+  --tag-color: #065f46;
+  --tag2-bg: #eff6ff;
+  --tag2-color: #1e40af;
+  --grain-opacity: 0.018;
+  --scan-color: rgba(13,110,79,0.25);
+  --stat-bg: rgba(13,110,79,0.02);
+  --stat-border: rgba(13,110,79,0.06);
+  --glow-1: rgba(13,110,79,0.04);
+  --glow-2: rgba(56,189,248,0.03);
+}
 
-    ::selection {
-      background: ${COLORS.gold};
-      color: ${COLORS.bg};
-    }
+/* ═══════════════════════════════════════════
+   DARK THEME
+   ═══════════════════════════════════════════ */
+[data-theme="dark"] {
+  --bg: #080c14;
+  --bg-page: #0b1120;
+  --bg-subtle: #111b2e;
+  --bg-card: #0f1728;
+  --bg-card-hover: #152036;
+  --accent: #34d399;
+  --accent-light: #6ee7b7;
+  --accent-soft: rgba(52,211,153,0.08);
+  --accent-softer: rgba(52,211,153,0.03);
+  --accent-border: rgba(52,211,153,0.15);
+  --accent-glow: rgba(52,211,153,0.06);
+  --text: #e8ecf1;
+  --text-secondary: #8994a6;
+  --text-tertiary: #4a556a;
+  --border: rgba(255,255,255,0.06);
+  --border-subtle: rgba(255,255,255,0.03);
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.25);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.45);
+  --shadow-card: 0 0 0 1px rgba(255,255,255,0.04), 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-card-hover: 0 0 0 1px rgba(52,211,153,0.12), 0 8px 24px rgba(0,0,0,0.4);
+  --nav-bg: rgba(8,12,20,0.85);
+  --nav-border: rgba(255,255,255,0.05);
+  --hero-gradient: radial-gradient(ellipse 80% 50% at 70% 40%, rgba(52,211,153,0.05), transparent 70%),
+                   radial-gradient(ellipse 60% 60% at 10% 80%, rgba(56,189,248,0.03), transparent);
+  --tag-bg: rgba(52,211,153,0.08);
+  --tag-color: #34d399;
+  --tag2-bg: rgba(96,165,250,0.08);
+  --tag2-color: #60a5fa;
+  --grain-opacity: 0.035;
+  --scan-color: rgba(52,211,153,0.3);
+  --stat-bg: rgba(52,211,153,0.03);
+  --stat-border: rgba(52,211,153,0.08);
+  --glow-1: rgba(52,211,153,0.04);
+  --glow-2: rgba(56,189,248,0.03);
+}
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(32px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideRight {
-      from { opacity: 0; transform: translateX(-24px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.4; }
-      50% { opacity: 1; }
-    }
-    @keyframes scanline {
-      0% { transform: translateY(-100%); }
-      100% { transform: translateY(400%); }
-    }
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-    @keyframes float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-8px); }
-    }
+html { scroll-behavior: smooth; }
 
-    .stagger-1 { animation-delay: 0.1s; }
-    .stagger-2 { animation-delay: 0.2s; }
-    .stagger-3 { animation-delay: 0.3s; }
-    .stagger-4 { animation-delay: 0.4s; }
-    .stagger-5 { animation-delay: 0.5s; }
-    .stagger-6 { animation-delay: 0.6s; }
-  `,
-};
+body {
+  font-family: var(--font-body);
+  background: var(--bg-page);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.5s var(--ease), color 0.5s var(--ease);
+}
 
-// ─── REUSABLE COMPONENTS ─────────────────────────────────────
-function SectionLabel({ children, color = COLORS.gold }) {
-  return (
-    <div style={{
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 8,
-      marginBottom: 16,
-      fontFamily: "'JetBrains Mono', monospace",
-      fontSize: 11,
-      fontWeight: 500,
-      letterSpacing: "0.15em",
-      textTransform: "uppercase",
-      color: color,
-    }}>
-      <span style={{
-        width: 24,
-        height: 1,
-        background: color,
-        display: "inline-block",
-      }} />
-      {children}
+/* ── Grain overlay ── */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 9999;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 128px 128px;
+  opacity: var(--grain-opacity);
+  transition: opacity 0.5s;
+}
+
+.container { max-width: 1140px; margin: 0 auto; padding: 0 2.5rem; }
+section { padding: 7rem 0; position: relative; }
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+   ═══════════════════════════════════════════ */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--nav-bg);
+  backdrop-filter: blur(28px) saturate(1.4); -webkit-backdrop-filter: blur(28px) saturate(1.4);
+  border-bottom: 1px solid var(--nav-border);
+  transition: all 0.5s var(--ease);
+}
+.nav-inner {
+  max-width: 1140px; margin: 0 auto; padding: 0 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 64px;
+}
+.logo {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 1.3rem; letter-spacing: -0.02em;
+  color: var(--text); text-decoration: none;
+  transition: color 0.3s;
+}
+.logo span { color: var(--accent); transition: color 0.3s; }
+.nav-links { display: flex; gap: 1.75rem; align-items: center; }
+.nav-links a {
+  color: var(--text-secondary); text-decoration: none;
+  font-size: 0.875rem; font-weight: 500;
+  transition: color 0.25s;
+  position: relative;
+}
+.nav-links a:not(.nav-cta):hover { color: var(--text); }
+.nav-links a:not(.nav-cta)::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1.5px; background: var(--accent);
+  transition: width 0.3s var(--ease);
+}
+.nav-links a:not(.nav-cta):hover::after { width: 100%; }
+.nav-links .nav-cta {
+  background: var(--accent); color: #fff;
+  padding: 0.5rem 1.3rem; border-radius: var(--radius-xs);
+  font-weight: 600; font-size: 0.82rem;
+  text-decoration: none; transition: all 0.25s; border: none;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 3px rgba(13,110,79,0.15);
+}
+.nav-links .nav-cta:hover { transform: translateY(-1px); background: var(--accent-light); box-shadow: 0 4px 12px rgba(13,110,79,0.2); color: #fff; }
+
+/* Theme toggle */
+.theme-toggle {
+  background: var(--accent-soft); border: none; border-radius: var(--radius-xs);
+  padding: 0.4rem; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; color: var(--accent);
+  transition: all 0.25s; width: 34px; height: 34px;
+}
+.theme-toggle:hover { background: var(--accent-border); transform: scale(1.05); }
+.theme-toggle svg { width: 16px; height: 16px; }
+[data-theme="light"] .icon-sun { display: none; }
+[data-theme="dark"] .icon-moon { display: none; }
+
+.menu-toggle { display: none; background: none; border: none; color: var(--text); cursor: pointer; padding: 0.25rem; }
+
+/* ═══════════════════════════════════════════
+   HERO
+   ═══════════════════════════════════════════ */
+.hero {
+  min-height: 100vh; display: flex; align-items: center;
+  padding-top: 64px; padding-bottom: 2rem; background: var(--bg);
+  position: relative; overflow: hidden;
+  transition: background 0.5s;
+}
+.hero-atmosphere {
+  position: absolute; inset: 0; z-index: 0;
+  background: var(--hero-gradient);
+  transition: background 0.5s;
+}
+
+/* Floating glow orbs */
+.hero-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); z-index: 0;
+  animation: orbFloat 20s ease-in-out infinite;
+}
+.hero-orb-1 {
+  width: 500px; height: 500px; top: -10%; right: -5%;
+  background: var(--glow-1);
+}
+.hero-orb-2 {
+  width: 350px; height: 350px; bottom: 5%; left: -8%;
+  background: var(--glow-2);
+  animation-delay: -7s;
+}
+@keyframes orbFloat {
+  0%, 100% { transform: translate(0, 0); }
+  33% { transform: translate(30px, -20px); }
+  66% { transform: translate(-15px, 15px); }
+}
+
+.hero-content { position: relative; z-index: 2; width: 100%; }
+.hero-grid {
+  display: flex; flex-direction: column;
+}
+.hero-inner { max-width: 700px; }
+.hero-label {
+  font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 1.5rem;
+  display: flex; align-items: center; gap: 0.75rem;
+}
+.hero-label::before {
+  content: ''; width: 28px; height: 1.5px; background: var(--accent);
+  border-radius: 1px;
+}
+.hero-title {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(3rem, 6vw, 5rem);
+  line-height: 1.06; letter-spacing: -0.035em;
+  color: var(--text); margin-bottom: 1.5rem;
+  transition: color 0.5s;
+}
+.hero-title em {
+  font-style: italic; color: var(--accent);
+  transition: color 0.5s;
+}
+.hero-sub {
+  font-size: 1.1rem; color: var(--text-secondary);
+  max-width: 580px; margin-bottom: 2.5rem;
+  line-height: 1.8; font-weight: 400;
+  transition: color 0.5s;
+}
+.hero-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+
+/* Buttons */
+.btn-primary {
+  background: var(--accent); color: #ffffff;
+  padding: 0.8rem 1.8rem; border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-weight: 600;
+  font-size: 0.9rem; text-decoration: none;
+  transition: all 0.3s var(--ease); display: inline-flex;
+  align-items: center; gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(13,110,79,0.2);
+}
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,110,79,0.25); background: var(--accent-light); }
+[data-theme="dark"] .btn-primary:hover { box-shadow: 0 6px 20px rgba(52,211,153,0.2); }
+.btn-primary svg { width: 16px; height: 16px; transition: transform 0.3s; }
+.btn-primary:hover svg { transform: translateX(3px); }
+.btn-ghost {
+  background: transparent; color: var(--text);
+  padding: 0.8rem 1.8rem; border-radius: var(--radius-sm);
+  font-family: var(--font-body); font-weight: 500;
+  font-size: 0.9rem; text-decoration: none;
+  transition: all 0.3s var(--ease); display: inline-block;
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--accent-border); background: var(--accent-softer); }
+
+/* ═══════════════════════════════════════════
+   HERO METRICS
+   ═══════════════════════════════════════════ */
+.hero-metrics {
+  display: flex; gap: 2.5rem; margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+.hero-metric {}
+.hero-metric-value {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 1.5rem; color: var(--text); letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.hero-metric-label {
+  font-size: 0.75rem; color: var(--text-tertiary); margin-top: 0.15rem;
+  font-weight: 500; line-height: 1.4;
+}
+
+/* Hero product cards */
+.hero-products {
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.hero-product-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+  transition: all 0.4s var(--ease);
+  border: 1px solid transparent;
+  position: relative; overflow: hidden;
+}
+.hero-product-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; border-radius: 0 2px 2px 0;
+  transition: opacity 0.3s;
+}
+.hero-product-card:first-child::before { background: var(--tag-color); opacity: 0.4; }
+.hero-product-card:last-child::before { background: var(--tag2-color); opacity: 0.4; }
+.hero-product-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+}
+.hero-product-card:hover::before { opacity: 1; }
+.hero-card-tag {
+  display: inline-block; font-size: 0.65rem; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 0.2rem 0.6rem; border-radius: 4px; margin-bottom: 0.6rem;
+}
+.hero-card-tag.t1 { background: var(--tag-bg); color: var(--tag-color); }
+.hero-card-tag.t2 { background: var(--tag2-bg); color: var(--tag2-color); }
+.hero-product-card h3 {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 1.15rem; margin-bottom: 0.4rem; letter-spacing: -0.01em;
+}
+.hero-product-card p {
+  font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION HEADINGS
+   ═══════════════════════════════════════════ */
+.section-eyebrow {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+  display: flex; align-items: center; gap: 0.6rem;
+}
+.section-eyebrow::before {
+  content: ''; width: 20px; height: 1.5px; background: var(--accent);
+  border-radius: 1px;
+}
+.section-heading {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: clamp(2rem, 3.5vw, 2.8rem); line-height: 1.12;
+  letter-spacing: -0.025em; color: var(--text); margin-bottom: 1rem;
+  transition: color 0.5s;
+}
+.section-heading em { font-style: italic; }
+.section-lead {
+  font-size: 1.05rem; color: var(--text-secondary);
+  max-width: 540px; line-height: 1.8; margin-bottom: 3rem;
+  transition: color 0.5s;
+}
+
+/* ═══════════════════════════════════════════
+   PRODUCT SECTIONS
+   ═══════════════════════════════════════════ */
+.product-section {
+  background: var(--bg); transition: background 0.5s;
+  overflow: hidden;
+}
+.product-section.alt { background: var(--bg-page); }
+/* Subtle corner glow per section */
+.product-section::before {
+  content: ''; position: absolute; width: 500px; height: 500px;
+  border-radius: 50%; filter: blur(100px); z-index: 0;
+  pointer-events: none; transition: background 0.5s;
+}
+.product-section:nth-of-type(1)::before {
+  top: -20%; right: -10%; background: var(--glow-1);
+}
+.product-section:nth-of-type(2)::before {
+  bottom: -20%; left: -10%; background: var(--glow-2);
+}
+.product-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem;
+  align-items: start; position: relative; z-index: 1;
+}
+.product-tag {
+  display: inline-block; font-size: 0.7rem; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 0.3rem 0.8rem; border-radius: var(--radius-xs);
+  margin-bottom: 0.75rem; transition: all 0.3s;
+}
+.tag-core { background: var(--tag-bg); color: var(--tag-color); }
+.tag-sort { background: var(--tag2-bg); color: var(--tag2-color); }
+
+.product-body {
+  font-size: 0.92rem; color: var(--text-secondary);
+  line-height: 1.75; margin-bottom: 1.5rem;
+}
+
+/* Meta cards */
+.product-meta { display: flex; gap: 1rem; margin-top: 2rem; }
+.meta-card {
+  background: var(--stat-bg); border-radius: var(--radius-sm);
+  padding: 1.3rem 1.5rem; flex: 1;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.35s var(--ease);
+  position: relative; overflow: hidden;
+}
+.meta-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 2px; background: var(--accent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.meta-card:hover { box-shadow: var(--shadow-md); border-color: var(--accent-border); }
+.meta-card:hover::before { transform: scaleX(1); }
+.meta-label {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 0.3rem;
+}
+.meta-value {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 1.4rem; color: var(--text); letter-spacing: -0.01em;
+}
+.meta-sub { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.1rem; }
+
+/* ── SENSOR STACK ── */
+.sensor-stack { display: flex; flex-direction: column; gap: 0.6rem; }
+.sensor-card {
+  background: var(--bg-card); border-radius: var(--radius-sm);
+  padding: 1.15rem 1.3rem; display: flex; align-items: center; gap: 1rem;
+  box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease);
+  border: 1px solid transparent;
+}
+.sensor-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px) translateX(4px);
+  border-color: var(--accent-border);
+}
+.sensor-icon {
+  width: 40px; height: 40px; border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 0.95rem;
+  transition: transform 0.3s var(--ease);
+}
+.sensor-card:hover .sensor-icon { transform: scale(1.1); }
+.si-1 { background: var(--tag-bg); color: var(--tag-color); }
+.si-2 { background: var(--tag2-bg); color: var(--tag2-color); }
+.si-3 { background: #fefce8; color: #92400e; }
+[data-theme="dark"] .si-3 { background: rgba(234,179,8,0.08); color: #fbbf24; }
+.si-4 { background: #fdf2f8; color: #9d174d; }
+[data-theme="dark"] .si-4 { background: rgba(236,72,153,0.08); color: #f472b6; }
+.si-5 { background: #f0f9ff; color: #075985; }
+[data-theme="dark"] .si-5 { background: rgba(14,165,233,0.08); color: #38bdf8; }
+.sensor-text h4 { font-weight: 600; font-size: 0.88rem; margin-bottom: 0.1rem; }
+.sensor-text p { font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; }
+
+/* ── FEATURE GRID ── */
+.feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+.feature-card {
+  background: var(--bg-card); border-radius: var(--radius-sm);
+  padding: 1.5rem; box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease);
+  border: 1px solid transparent;
+  position: relative; overflow: hidden;
+}
+.feature-card::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: linear-gradient(90deg, var(--accent), transparent);
+  transform: scaleX(0); transform-origin: left;
+  transition: transform 0.4s var(--ease);
+}
+.feature-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+}
+.feature-card:hover::after { transform: scaleX(1); }
+.feature-card h4 { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+.feature-card p { font-size: 0.82rem; color: var(--text-secondary); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   PLATFORM / FLYWHEEL
+   ═══════════════════════════════════════════ */
+.platform-section {
+  background: var(--bg-page); transition: background 0.5s;
+  position: relative; overflow: hidden;
+}
+.platform-section::before {
+  content: ''; position: absolute;
+  width: 600px; height: 600px; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1px solid var(--border);
+  opacity: 0.4; pointer-events: none;
+}
+.platform-section::after {
+  content: ''; position: absolute;
+  width: 400px; height: 400px; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%; border: 1px dashed var(--border);
+  opacity: 0.3; pointer-events: none;
+  animation: spinSlow 60s linear infinite;
+}
+@keyframes spinSlow { to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+.flywheel-row {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem;
+  position: relative; z-index: 1;
+}
+.flywheel-card {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 2.25rem; box-shadow: var(--shadow-card);
+  transition: all 0.4s var(--ease);
+  border: 1px solid transparent;
+  position: relative; overflow: hidden;
+}
+.flywheel-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 0; background: var(--accent);
+  transition: height 0.5s var(--ease);
+  border-radius: 0 0 2px 0;
+}
+.flywheel-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-4px);
+  border-color: var(--accent-border);
+}
+.flywheel-card:hover::before { height: 100%; }
+.flywheel-num {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 2.5rem; color: var(--accent); opacity: 0.15;
+  line-height: 1; margin-bottom: 1rem;
+}
+.flywheel-card h4 { font-weight: 600; font-size: 1rem; margin-bottom: 0.5rem; }
+.flywheel-card p { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* Connector arrows between flywheel cards */
+.flywheel-connector {
+  display: flex; align-items: center; gap: 1.25rem;
+  position: relative; z-index: 1;
+}
+
+/* ═══════════════════════════════════════════
+   TEAM
+   ═══════════════════════════════════════════ */
+.team-section { background: var(--bg); transition: background 0.5s; }
+.cred-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.cred-card {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 1.85rem; box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease);
+  border: 1px solid transparent;
+  position: relative;
+}
+.cred-card::before {
+  content: ''; position: absolute; top: 1.5rem; left: 0;
+  width: 3px; height: 20px; background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  transition: height 0.3s var(--ease);
+}
+.cred-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-2px);
+  border-color: var(--accent-border);
+}
+.cred-card:hover::before { height: 35px; }
+.cred-eyebrow {
+  font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem;
+  padding-left: 0.15rem;
+}
+.cred-card h4 {
+  font-family: var(--font-display); font-weight: 500;
+  font-size: 0.95rem; margin-bottom: 0.45rem; line-height: 1.35;
+}
+.cred-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; }
+
+/* ═══════════════════════════════════════════
+   MARKET
+   ═══════════════════════════════════════════ */
+.market-section { background: var(--bg-page); transition: background 0.5s; }
+.market-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4.5rem; align-items: start; }
+.market-list { display: flex; flex-direction: column; gap: 1.75rem; }
+.market-stat {
+  padding-left: 1.5rem; border-left: 2px solid var(--border);
+  transition: all 0.35s var(--ease);
+}
+.market-stat:hover { border-color: var(--accent); padding-left: 1.75rem; }
+.market-val {
+  font-family: var(--font-display); font-weight: 600;
+  font-size: 1.7rem; color: var(--text); letter-spacing: -0.01em;
+}
+.market-desc { font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.15rem; }
+
+/* ═══════════════════════════════════════════
+   CAREERS
+   ═══════════════════════════════════════════ */
+.careers-section { background: var(--bg); transition: background 0.5s; }
+.roles-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.role-card {
+  background: var(--bg-card); border-radius: var(--radius);
+  padding: 1.85rem; box-shadow: var(--shadow-card);
+  transition: all 0.35s var(--ease);
+  border: 1px solid transparent; cursor: default;
+  position: relative; overflow: hidden;
+}
+.role-card::after {
+  content: '→'; position: absolute; top: 1.85rem; right: 1.85rem;
+  font-size: 1.1rem; color: var(--accent); opacity: 0;
+  transform: translateX(-8px);
+  transition: all 0.3s var(--ease);
+}
+.role-card:hover {
+  box-shadow: var(--shadow-card-hover);
+  transform: translateY(-3px);
+  border-color: var(--accent-border);
+}
+.role-card:hover::after { opacity: 1; transform: translateX(0); }
+.role-card h4 { font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem; }
+.role-loc { font-size: 0.78rem; color: var(--accent); font-weight: 500; margin-bottom: 0.6rem; }
+.role-card p { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.65; }
+
+/* ═══════════════════════════════════════════
+   CTA
+   ═══════════════════════════════════════════ */
+.cta-section {
+  padding: 8rem 0; background: var(--bg-page);
+  transition: background 0.5s;
+  position: relative; overflow: hidden;
+}
+.cta-section::before {
+  content: ''; position: absolute;
+  width: 600px; height: 300px; bottom: -20%; right: -10%;
+  background: var(--glow-1); filter: blur(120px);
+  border-radius: 50%; pointer-events: none;
+}
+.cta-inner { max-width: 520px; position: relative; z-index: 1; }
+.cta-buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 2rem; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+   ═══════════════════════════════════════════ */
+footer {
+  padding: 2.5rem 0; border-top: 1px solid var(--border);
+  background: var(--bg); transition: all 0.5s;
+}
+.footer-inner { display: flex; justify-content: space-between; align-items: center; }
+.footer-copy { font-size: 0.78rem; color: var(--text-tertiary); }
+.footer-links { display: flex; gap: 1.5rem; }
+.footer-links a {
+  font-size: 0.78rem; color: var(--text-tertiary);
+  text-decoration: none; transition: color 0.25s;
+}
+.footer-links a:hover { color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   ANIMATIONS
+   ═══════════════════════════════════════════ */
+.reveal {
+  opacity: 0; transform: translateY(24px);
+  transition: opacity 0.8s var(--ease-out), transform 0.8s var(--ease-out);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.06s; }
+.d2 { transition-delay: 0.12s; }
+.d3 { transition-delay: 0.18s; }
+.d4 { transition-delay: 0.24s; }
+
+/* Stagger children in grids */
+.stagger-children .reveal:nth-child(1) { transition-delay: 0s; }
+.stagger-children .reveal:nth-child(2) { transition-delay: 0.06s; }
+.stagger-children .reveal:nth-child(3) { transition-delay: 0.12s; }
+.stagger-children .reveal:nth-child(4) { transition-delay: 0.18s; }
+.stagger-children .reveal:nth-child(5) { transition-delay: 0.24s; }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .container { padding: 0 1.5rem; }
+  .nav-inner { padding: 0 1.5rem; }
+  .product-grid, .market-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .flywheel-row, .cred-grid, .roles-grid, .feature-grid { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex; flex-direction: column;
+    position: absolute; top: 64px; left: 0; right: 0;
+    background: var(--nav-bg); backdrop-filter: blur(28px);
+    padding: 1.5rem 2rem; gap: 1rem;
+    border-bottom: 1px solid var(--nav-border);
+  }
+  .menu-toggle { display: block; }
+  section { padding: 5rem 0; }
+  .hero { min-height: auto; padding-top: 120px; padding-bottom: 4rem; }
+  .hero-orb { display: none; }
+  .platform-section::before, .platform-section::after { display: none; }
+}
+@media (max-width: 600px) {
+  .product-meta { flex-direction: column; }
+  .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
+  .hero-title { font-size: 2.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="logo">Terra<span>sope</span></a>
+    <div class="nav-links" id="navLinks">
+      <a href="#coresight">CoreSight</a>
+      <a href="#sortstack">SortStack</a>
+      <a href="#platform">Platform</a>
+      <a href="#team">Team</a>
+      <a href="#careers">Careers</a>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
+      <a href="mailto:info@terrasope.com" class="nav-cta">Get in Touch</a>
     </div>
-  );
-}
-
-function SectionTitle({ children }) {
-  return (
-    <h2 style={{
-      fontFamily: "'DM Serif Display', serif",
-      fontSize: "clamp(28px, 4vw, 44px)",
-      fontWeight: 400,
-      lineHeight: 1.15,
-      color: COLORS.white,
-      marginBottom: 20,
-    }}>
-      {children}
-    </h2>
-  );
-}
-
-function Container({ children, style = {} }) {
-  return (
-    <div style={{
-      maxWidth: 1200,
-      margin: "0 auto",
-      padding: "0 24px",
-      ...style,
-    }}>
-      {children}
-    </div>
-  );
-}
-
-function Divider() {
-  return (
-    <div style={{
-      height: 1,
-      background: `linear-gradient(90deg, transparent, ${COLORS.border}, transparent)`,
-      margin: "0 auto",
-      maxWidth: 1200,
-    }} />
-  );
-}
-
-// ─── GEOLOGICAL PATTERN BG ─────────────────────────────────
-function StrataBackground() {
-  return (
-    <div style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100%",
-      height: "100%",
-      pointerEvents: "none",
-      zIndex: 0,
-      opacity: 0.35,
-    }}>
-      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <pattern id="strata" x="0" y="0" width="100%" height="200" patternUnits="userSpaceOnUse">
-            <line x1="0" y1="48" x2="100%" y2="52" stroke={COLORS.border} strokeWidth="0.5" />
-            <line x1="0" y1="98" x2="100%" y2="95" stroke={COLORS.border} strokeWidth="0.3" />
-            <line x1="0" y1="147" x2="100%" y2="151" stroke={COLORS.border} strokeWidth="0.4" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#strata)" />
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
       </svg>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-atmosphere"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="container hero-content">
+    <div class="hero-grid">
+      <div class="hero-inner">
+        <div class="hero-label">British Columbia, Canada</div>
+        <h1 class="hero-title">Mine-site intelligence,<br><em>from core to concentrate.</em></h1>
+        <p class="hero-sub">Terrasope deploys ruggedized AI sensor platforms at exploration and production sites — replacing weeks of laboratory turnaround with real-time geological intelligence that cuts drill program waste by 20–30% and makes sub-economic deposits viable.</p>
+        <div class="hero-buttons">
+          <a href="#coresight" class="btn-primary">
+            Explore Products
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#careers" class="btn-ghost">Join the Team</a>
+        </div>
+      </div>
     </div>
-  );
-}
+  </div>
+</section>
 
-// ─── NAV ────────────────────────────────────────────────────
-function Nav() {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 40);
-    window.addEventListener("scroll", h);
-    return () => window.removeEventListener("scroll", h);
-  }, []);
+<!-- CORESIGHT -->
+<section id="coresight" class="product-section">
+  <div class="container">
+    <div class="product-grid">
+      <div>
+        <div class="product-tag tag-core reveal">Product 1</div>
+        <h2 class="section-heading reveal">CoreSight</h2>
+        <p class="section-lead reveal">A ruggedized, field-deployable core analysis station that replaces weeks of laboratory turnaround with seconds of AI-powered geological intelligence — directly at the drill site.</p>
+        <p class="product-body reveal">Scans whole drill core through a multi-sensor array, producing real-time lithological classification, mineral identification, alteration mapping, and element grade estimates. Digital geological logs replace manual logging bottlenecks. Drill programs become adaptive, not reactive.</p>
+        <div class="product-meta reveal">
+          <div class="meta-card">
+            <div class="meta-label">Service Model</div>
+            <div class="meta-value">$50–100</div>
+            <div class="meta-sub">per meter analyzed</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">10,000m Program</div>
+            <div class="meta-value">$0.5–1M</div>
+            <div class="meta-sub">revenue per engagement</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-eyebrow reveal" style="margin-bottom:0.85rem;">Sensor Array</div>
+        <div class="sensor-stack stagger-children">
+          <div class="sensor-card reveal">
+            <div class="sensor-icon si-1">◇</div>
+            <div class="sensor-text"><h4>Hyperspectral SWIR</h4><p>Alteration &amp; clay mineral ID via reflectance spectroscopy</p></div>
+          </div>
+          <div class="sensor-card reveal">
+            <div class="sensor-icon si-2">◉</div>
+            <div class="sensor-text"><h4>Portable XRF</h4><p>Multi-element geochemical grade estimation</p></div>
+          </div>
+          <div class="sensor-card reveal">
+            <div class="sensor-icon si-3">◑</div>
+            <div class="sensor-text"><h4>Industrial RGB</h4><p>High-res texture, structure &amp; color analysis</p></div>
+          </div>
+          <div class="sensor-card reveal">
+            <div class="sensor-icon si-4">◎</div>
+            <div class="sensor-text"><h4>Magnetic Susceptibility</h4><p>Magnetic mineral ID &amp; alteration zonation</p></div>
+          </div>
+          <div class="sensor-card reveal">
+            <div class="sensor-icon si-5">○</div>
+            <div class="sensor-text"><h4>Edge AI (Jetson AGX)</h4><p>Real-time inference &amp; multi-sensor fusion</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  const links = [
-    { label: "Platform", href: "#platform" },
-    { label: "CoreSight", href: "#coresight" },
-    { label: "SortStack", href: "#sortstack" },
-    { label: "Team", href: "#team" },
-    { label: "Careers", href: "#careers" },
-  ];
+<!-- SORTSTACK -->
+<section id="sortstack" class="product-section alt">
+  <div class="container">
+    <div class="product-grid">
+      <div>
+        <div class="product-tag tag-sort reveal">Product 2</div>
+        <h2 class="section-heading reveal">SortStack</h2>
+        <p class="section-lead reveal">A containerized, truck-portable ore sorting and concentration plant. Multi-sensor AI classification separates valuable material from waste rock at the mine face.</p>
+        <p class="product-body reveal">Deployed in standard shipping containers with 10–50 tph capacity. Reduces the mass requiring transport and processing by 40–70%. A deposit that can't support a $200–500M conventional plant becomes viable when only the highest-grade material enters the logistics chain.</p>
+        <div class="product-meta reveal">
+          <div class="meta-card">
+            <div class="meta-label">Monthly Lease</div>
+            <div class="meta-value">$50–80K</div>
+            <div class="meta-sub">or purchase at $500–700K</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">Lease Payback</div>
+            <div class="meta-value">2–3 days</div>
+            <div class="meta-sub">of operation at 500 tpd</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="section-eyebrow reveal" style="margin-bottom:0.85rem;">Capabilities</div>
+        <div class="feature-grid stagger-children">
+          <div class="feature-card reveal">
+            <h4>XRT Sorting</h4>
+            <p>X-ray transmission density classification identifies sulphides and oxides at 2+ m/s conveyor speed.</p>
+          </div>
+          <div class="feature-card reveal">
+            <h4>Hyperspectral Surface</h4>
+            <p>Optical and NIR cameras characterize mineral surfaces of individual ore fragments.</p>
+          </div>
+          <div class="feature-card reveal">
+            <h4>Adaptive AI</h4>
+            <p>Self-adjusting classification thresholds as ore feed changes — no manual recalibration.</p>
+          </div>
+          <div class="feature-card reveal">
+            <h4>Containerized</h4>
+            <p>Ships in 20/40-ft containers. Diesel or grid power. Deploys to remote sites in days, not years.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-  return (
-    <nav style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      right: 0,
-      zIndex: 100,
-      padding: "0 24px",
-      height: 64,
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      background: scrolled ? "rgba(10,11,13,0.92)" : "transparent",
-      backdropFilter: scrolled ? "blur(16px)" : "none",
-      borderBottom: scrolled ? `1px solid ${COLORS.border}` : "1px solid transparent",
-      transition: "all 0.4s ease",
-    }}>
-      <div style={{
-        maxWidth: 1200,
-        width: "100%",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-      }}>
-        <a href="#" style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: 22,
-          color: COLORS.white,
-          textDecoration: "none",
-          letterSpacing: "-0.02em",
-        }}>
-          <span style={{ color: COLORS.gold }}>Terra</span>sope
+<!-- PLATFORM -->
+<section id="platform" class="platform-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">The Platform</div>
+    <h2 class="section-heading reveal">One foundation. Two products. <em>One flywheel.</em></h2>
+    <p class="section-lead reveal">CoreSight and SortStack share sensor fusion, AI classification, and edge computing infrastructure. Geological knowledge from exploration directly informs production sorting — a data advantage that compounds with every deployment.</p>
+    <div class="flywheel-row stagger-children">
+      <div class="flywheel-card reveal">
+        <div class="flywheel-num">01</div>
+        <h4>Explore</h4>
+        <p>CoreSight scans drill core and builds a geological knowledge base — lithology, mineralogy, geochemistry — for every meter of every deposit.</p>
+      </div>
+      <div class="flywheel-card reveal">
+        <div class="flywheel-num">02</div>
+        <h4>Characterize</h4>
+        <p>AI models learn the spectral and geochemical signatures of each ore type, building proprietary calibration datasets paired with lab assay.</p>
+      </div>
+      <div class="flywheel-card reveal">
+        <div class="flywheel-num">03</div>
+        <h4>Sort</h4>
+        <p>SortStack inherits the geological intelligence. Sorting parameters are pre-tuned to the deposit before a single tonne hits the conveyor.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEAM -->
+<section id="team" class="team-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">Founder</div>
+    <h2 class="section-heading reveal">Built for the field. <em>Trained in AI and rock.</em></h2>
+    <p class="section-lead reveal">Terrasope is founded by someone who has both designed AI data systems at scale and operated heavy equipment fleets in remote oilfields. That combination is the product.</p>
+    <div class="cred-grid stagger-children">
+      <div class="cred-card reveal">
+        <div class="cred-eyebrow">Geoscience</div>
+        <h4>B.Sc. Environmental Geoscience — University of Toronto</h4>
+        <p>Mineralogy, petrology, geochemistry, structural geology. Best Seminar Award for original research on industrial emissions bypass modelling.</p>
+      </div>
+      <div class="cred-card reveal">
+        <div class="cred-eyebrow">AI Engineering</div>
+        <h4>Senior Data Quality Specialist — Cohere Inc.</h4>
+        <p>Large-scale data pipelines, AI model QA, multi-modal dataset management at one of Canada's leading enterprise AI companies.</p>
+      </div>
+      <div class="cred-card reveal">
+        <div class="cred-eyebrow">Industrial Operations</div>
+        <h4>441-Unit Fleet Program — Oman Oilfields</h4>
+        <p>Six-year SLA across six remote workshops. Drilling rigs, excavators, cranes, tankers. Authored the 53-page contractual framework with KPI-governed SLAs.</p>
+      </div>
+      <div class="cred-card reveal">
+        <div class="cred-eyebrow">Scale Delivery</div>
+        <h4>300 Vehicle Reconfiguration — Dubai RTA</h4>
+        <p>Led reconfiguration of 300 articulated transit buses including homologation and crashworthiness certification for a sovereign transport authority.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARKET -->
+<section class="market-section">
+  <div class="container">
+    <div class="market-grid">
+      <div>
+        <div class="section-eyebrow reveal">The Moment</div>
+        <h2 class="section-heading reveal">Unprecedented government <em>capital in play.</em></h2>
+        <p class="section-lead reveal">Canada has committed generational investment to critical minerals. Terrasope builds the technology that makes that investment productive — faster exploration, cheaper processing, domestic supply chain security.</p>
+      </div>
+      <div class="market-list">
+        <div class="market-stat reveal">
+          <div class="market-val">$18.5B</div>
+          <div class="market-desc">Critical Minerals Production Alliance — mobilized project capital</div>
+        </div>
+        <div class="market-stat reveal d1">
+          <div class="market-val">$2B</div>
+          <div class="market-desc">Critical Minerals Sovereign Fund</div>
+        </div>
+        <div class="market-stat reveal d2">
+          <div class="market-val">$192M</div>
+          <div class="market-desc">NRCan Critical Minerals R&D Program</div>
+        </div>
+        <div class="market-stat reveal d3">
+          <div class="market-val">$4B</div>
+          <div class="market-desc">BDC Defence Platform — dual-use technology financing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAREERS -->
+<section id="careers" class="careers-section">
+  <div class="container">
+    <div class="section-eyebrow reveal">Join Us</div>
+    <h2 class="section-heading reveal">Build what mines <em>should have had</em> a decade ago.</h2>
+    <p class="section-lead reveal">We're assembling a team across Canada and India to build mine-site intelligence infrastructure. If you work at the intersection of hardware, AI, and the physical world — we want to talk.</p>
+    <div class="roles-grid stagger-children">
+      <div class="role-card reveal">
+        <h4>ML / Computer Vision Engineer</h4>
+        <div class="role-loc">Remote — Canada or India</div>
+        <p>Sensor fusion, spectral classification, real-time inference on edge hardware. Train and deploy models that identify minerals from raw sensor data.</p>
+      </div>
+      <div class="role-card reveal">
+        <h4>Mechanical / Mechatronics Engineer</h4>
+        <div class="role-loc">South India — Production Team</div>
+        <p>Conveyor systems, sensor mounts, ruggedized enclosures, containerized plant design. SolidWorks/Fusion 360, fabrication oversight.</p>
+      </div>
+      <div class="role-card reveal">
+        <h4>3D Visualization Artist</h4>
+        <div class="role-loc">South India — Production Team</div>
+        <p>Photorealistic product renders, process animations, and a company sizzle reel. Industrial visualization for a mining-industry audience.</p>
+      </div>
+      <div class="role-card reveal">
+        <h4>Full-Stack / Embedded Developer</h4>
+        <div class="role-loc">Remote — Canada or India</div>
+        <p>Dashboard UI, NVIDIA Jetson integration, cloud data pipelines. The software layer that ties sensors to intelligence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <div class="cta-inner">
+      <div class="section-eyebrow reveal">Get Started</div>
+      <h2 class="section-heading reveal">Let's <em>talk.</em></h2>
+      <p class="reveal" style="font-size:1.05rem; color:var(--text-secondary); line-height:1.8;">Whether you're an exploration company planning your 2027 drill season, a funder backing critical minerals technology, or an engineer who wants to build something that matters.</p>
+      <div class="cta-buttons reveal">
+        <a href="mailto:info@terrasope.com" class="btn-primary">
+          info@terrasope.com
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
-        <div style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 32,
-        }}>
-          {links.map(l => (
-            <a key={l.label} href={l.href} style={{
-              color: COLORS.textMuted,
-              textDecoration: "none",
-              fontSize: 13,
-              fontWeight: 500,
-              letterSpacing: "0.02em",
-              transition: "color 0.2s",
-            }}
-            onMouseEnter={e => e.target.style.color = COLORS.white}
-            onMouseLeave={e => e.target.style.color = COLORS.textMuted}
-            >
-              {l.label}
-            </a>
-          ))}
-          <a href="#contact" style={{
-            padding: "8px 20px",
-            background: COLORS.gold,
-            color: COLORS.bg,
-            borderRadius: 6,
-            fontSize: 13,
-            fontWeight: 600,
-            textDecoration: "none",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={e => { e.target.style.background = COLORS.goldLight; }}
-          onMouseLeave={e => { e.target.style.background = COLORS.gold; }}
-          >
-            Get in Touch
-          </a>
-        </div>
+        <a href="#careers" class="btn-ghost">View Open Roles</a>
       </div>
-    </nav>
-  );
-}
+      <p class="reveal" style="margin-top:2.5rem; font-size:0.78rem; color:var(--text-tertiary);">British Columbia, Canada · Incorporated 2026 · CCPC</p>
+    </div>
+  </div>
+</section>
 
-// ─── HERO ───────────────────────────────────────────────────
-function Hero() {
-  return (
-    <section style={{
-      minHeight: "100vh",
-      display: "flex",
-      alignItems: "center",
-      position: "relative",
-      overflow: "hidden",
-      paddingTop: 64,
-    }}>
-      {/* Radial glow */}
-      <div style={{
-        position: "absolute",
-        top: "-20%",
-        right: "-10%",
-        width: 800,
-        height: 800,
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${COLORS.goldDim} 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute",
-        bottom: "-10%",
-        left: "-5%",
-        width: 600,
-        height: 600,
-        borderRadius: "50%",
-        background: `radial-gradient(circle, ${COLORS.cyanDim} 0%, transparent 70%)`,
-        pointerEvents: "none",
-      }} />
-
-      <Container>
-        <div style={{ maxWidth: 820 }}>
-          <div style={{
-            animation: "fadeUp 0.8s ease both",
-          }}>
-            <SectionLabel>British Columbia, Canada</SectionLabel>
-          </div>
-
-          <h1 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: "clamp(40px, 6vw, 72px)",
-            fontWeight: 400,
-            lineHeight: 1.08,
-            color: COLORS.white,
-            marginBottom: 28,
-            animation: "fadeUp 0.8s ease both",
-            animationDelay: "0.15s",
-          }}>
-            Mine-site intelligence,{" "}
-            <span style={{
-              background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
-              WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-            }}>
-              from core to concentrate.
-            </span>
-          </h1>
-
-          <p style={{
-            fontSize: "clamp(16px, 2vw, 20px)",
-            lineHeight: 1.65,
-            color: COLORS.textMuted,
-            maxWidth: 620,
-            marginBottom: 44,
-            animation: "fadeUp 0.8s ease both",
-            animationDelay: "0.3s",
-          }}>
-            Terrasope deploys ruggedized AI sensor platforms at exploration and production sites — 
-            replacing weeks of laboratory turnaround with real-time geological intelligence 
-            that cuts drill program waste by 20–30% and makes sub-economic deposits viable.
-          </p>
-
-          <div style={{
-            display: "flex",
-            gap: 16,
-            flexWrap: "wrap",
-            animation: "fadeUp 0.8s ease both",
-            animationDelay: "0.45s",
-          }}>
-            <a href="#coresight" style={{
-              padding: "14px 32px",
-              background: COLORS.gold,
-              color: COLORS.bg,
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 600,
-              textDecoration: "none",
-              transition: "all 0.25s",
-            }}
-            onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 8px 32px ${COLORS.goldDim}`; }}
-            onMouseLeave={e => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "none"; }}
-            >
-              Explore Products
-            </a>
-            <a href="#careers" style={{
-              padding: "14px 32px",
-              background: "transparent",
-              color: COLORS.text,
-              border: `1px solid ${COLORS.borderLight}`,
-              borderRadius: 8,
-              fontSize: 15,
-              fontWeight: 500,
-              textDecoration: "none",
-              transition: "all 0.25s",
-            }}
-            onMouseEnter={e => { e.target.style.borderColor = COLORS.gold; e.target.style.color = COLORS.gold; }}
-            onMouseLeave={e => { e.target.style.borderColor = COLORS.borderLight; e.target.style.color = COLORS.text; }}
-            >
-              Join the Team
-            </a>
-          </div>
-        </div>
-
-        {/* Stat bar */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-          gap: 1,
-          marginTop: 80,
-          background: COLORS.border,
-          borderRadius: 12,
-          overflow: "hidden",
-          animation: "fadeUp 0.8s ease both",
-          animationDelay: "0.6s",
-        }}>
-          {[
-            { value: "$4.2B", label: "Canadian exploration spend (2024)" },
-            { value: "$50–100", label: "Per meter, real-time analysis" },
-            { value: "40–70%", label: "Waste mass reduction" },
-            { value: "Jan 2027", label: "AME Roundup launch" },
-          ].map((s, i) => (
-            <div key={i} style={{
-              background: COLORS.bgCard,
-              padding: "24px 20px",
-              textAlign: "center",
-            }}>
-              <div style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: 24,
-                color: COLORS.gold,
-                marginBottom: 6,
-              }}>{s.value}</div>
-              <div style={{
-                fontSize: 12,
-                color: COLORS.textDim,
-                lineHeight: 1.4,
-              }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── PLATFORM THESIS ────────────────────────────────────────
-function Platform() {
-  return (
-    <section id="platform" style={{ padding: "120px 0" }}>
-      <Container>
-        <div style={{ maxWidth: 700, marginBottom: 64 }}>
-          <SectionLabel>Platform Thesis</SectionLabel>
-          <SectionTitle>The integration gap in mining technology</SectionTitle>
-          <p style={{ fontSize: 16, lineHeight: 1.7, color: COLORS.textMuted }}>
-            Sensor manufacturers sell instruments. Software companies sell modelling tools. 
-            Consultants sell expertise by the hour. Nobody follows the mineral from discovery 
-            through production with an integrated hardware+AI platform that gets smarter at every stage.
-          </p>
-        </div>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 48px 1fr",
-          alignItems: "center",
-          gap: 0,
-          background: COLORS.bgCard,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 16,
-          overflow: "hidden",
-        }}>
-          {/* CoreSight side */}
-          <div style={{ padding: "48px 40px" }}>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              color: COLORS.cyan,
-              letterSpacing: "0.1em",
-              marginBottom: 12,
-            }}>EXPLORATION</div>
-            <div style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
-              color: COLORS.white,
-              marginBottom: 12,
-            }}>CoreSight</div>
-            <p style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.6 }}>
-              Multi-sensor drill core analysis at the rig site. Hyperspectral SWIR, pXRF, optical, 
-              and magnetic susceptibility — fused by edge AI for real-time lithological classification 
-              and grade estimation.
-            </p>
-          </div>
-
-          {/* Data flywheel center */}
-          <div style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: 4,
-          }}>
-            <div style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              border: `2px solid ${COLORS.gold}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              animation: "float 3s ease-in-out infinite",
-            }}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M10 3v14M3 10h14" stroke={COLORS.gold} strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </div>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 8,
-              color: COLORS.textDim,
-              textAlign: "center",
-              lineHeight: 1.3,
-              letterSpacing: "0.05em",
-            }}>DATA<br/>FLYWHEEL</div>
-          </div>
-
-          {/* SortStack side */}
-          <div style={{ padding: "48px 40px" }}>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              color: COLORS.gold,
-              letterSpacing: "0.1em",
-              marginBottom: 12,
-            }}>PRODUCTION</div>
-            <div style={{
-              fontFamily: "'DM Serif Display', serif",
-              fontSize: 28,
-              color: COLORS.white,
-              marginBottom: 12,
-            }}>SortStack</div>
-            <p style={{ fontSize: 14, color: COLORS.textMuted, lineHeight: 1.6 }}>
-              Containerized AI ore sorting at the mine face. XRT, optical, and hyperspectral 
-              sensors classify and eject waste rock — reducing haulage mass by 40–70% and 
-              making sub-economic deposits viable.
-            </p>
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── PRODUCT SECTION (CORESIGHT) ────────────────────────────
-function CoreSight() {
-  const sensors = [
-    { name: "Hyperspectral SWIR", desc: "Alteration & clay mineral ID via reflectance spectroscopy", icon: "◈" },
-    { name: "Portable XRF", desc: "Multi-element geochemical grade estimation", icon: "◉" },
-    { name: "Industrial RGB", desc: "High-res texture, structure & color analysis", icon: "◐" },
-    { name: "Magnetic Susceptibility", desc: "Magnetic mineral ID & alteration zonation", icon: "◎" },
-    { name: "Edge AI (Jetson AGX)", desc: "Real-time inference & multi-sensor fusion", icon: "⬡" },
-  ];
-
-  return (
-    <section id="coresight" style={{ padding: "120px 0" }}>
-      <Container>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
-          <div>
-            <SectionLabel color={COLORS.cyan}>Product 1</SectionLabel>
-            <SectionTitle>CoreSight</SectionTitle>
-            <p style={{
-              fontSize: 17,
-              lineHeight: 1.7,
-              color: COLORS.textMuted,
-              marginBottom: 12,
-            }}>
-              A ruggedized, field-deployable core analysis station that replaces weeks of 
-              laboratory turnaround with seconds of AI-powered geological intelligence — 
-              directly at the drill site.
-            </p>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: COLORS.textDim, marginBottom: 40 }}>
-              Scans whole drill core through a multi-sensor array, producing real-time lithological 
-              classification, mineral identification, alteration mapping, and element grade estimates. 
-              Digital geological logs replace manual logging bottlenecks. Drill programs become 
-              adaptive, not reactive.
-            </p>
-
-            {/* Pricing */}
-            <div style={{
-              display: "flex",
-              gap: 16,
-              marginBottom: 40,
-            }}>
-              <div style={{
-                padding: "20px 24px",
-                background: COLORS.bgCard,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: 12,
-                flex: 1,
-              }}>
-                <div style={{ fontSize: 11, color: COLORS.textDim, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", marginBottom: 8 }}>SERVICE MODEL</div>
-                <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, color: COLORS.cyan }}>$50–100</div>
-                <div style={{ fontSize: 13, color: COLORS.textMuted }}>per meter analyzed</div>
-              </div>
-              <div style={{
-                padding: "20px 24px",
-                background: COLORS.bgCard,
-                border: `1px solid ${COLORS.border}`,
-                borderRadius: 12,
-                flex: 1,
-              }}>
-                <div style={{ fontSize: 11, color: COLORS.textDim, fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.08em", marginBottom: 8 }}>10,000m PROGRAM</div>
-                <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: 28, color: COLORS.cyan }}>$0.5–1M</div>
-                <div style={{ fontSize: 13, color: COLORS.textMuted }}>revenue per engagement</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Sensor stack */}
-          <div>
-            <div style={{
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: 11,
-              color: COLORS.textDim,
-              letterSpacing: "0.1em",
-              marginBottom: 20,
-              paddingLeft: 4,
-            }}>SENSOR ARRAY</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {sensors.map((s, i) => (
-                <div key={i} style={{
-                  padding: "20px 24px",
-                  background: COLORS.bgCard,
-                  border: `1px solid ${COLORS.border}`,
-                  borderRadius: 12,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 16,
-                  transition: "all 0.25s",
-                  cursor: "default",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = COLORS.cyan;
-                  e.currentTarget.style.background = COLORS.bgCardHover;
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = COLORS.border;
-                  e.currentTarget.style.background = COLORS.bgCard;
-                }}
-                >
-                  <div style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: 10,
-                    background: COLORS.cyanDim,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 18,
-                    color: COLORS.cyan,
-                    flexShrink: 0,
-                  }}>{s.icon}</div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 2 }}>{s.name}</div>
-                    <div style={{ fontSize: 12, color: COLORS.textDim }}>{s.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── SORTSTACK ──────────────────────────────────────────────
-function SortStack() {
-  return (
-    <section id="sortstack" style={{ padding: "120px 0", background: `linear-gradient(180deg, transparent, ${COLORS.goldDim}, transparent)` }}>
-      <Container>
-        <div style={{ maxWidth: 700, margin: "0 auto", textAlign: "center", marginBottom: 64 }}>
-          <SectionLabel color={COLORS.gold}>Product 2</SectionLabel>
-          <SectionTitle>SortStack</SectionTitle>
-          <p style={{ fontSize: 17, lineHeight: 1.7, color: COLORS.textMuted }}>
-            A containerized, truck-portable AI ore sorting plant that concentrates valuable 
-            mineral at the mine face — transforming sub-economic deposits into viable operations 
-            by eliminating 40–70% of waste mass before haulage.
-          </p>
-        </div>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(3, 1fr)",
-          gap: 20,
-          marginBottom: 48,
-        }}>
-          {[
-            { label: "Throughput", value: "10–50 tph", sub: "Full-scale continuous operation" },
-            { label: "Lease", value: "$50–80K", sub: "Per month, all-inclusive" },
-            { label: "Purchase", value: "$500–700K", sub: "Plus $10–15K/mo AI subscription" },
-          ].map((item, i) => (
-            <div key={i} style={{
-              padding: "36px 28px",
-              background: COLORS.bgCard,
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: 14,
-              textAlign: "center",
-            }}>
-              <div style={{
-                fontFamily: "'DM Serif Display', serif",
-                fontSize: 32,
-                color: COLORS.gold,
-                marginBottom: 6,
-              }}>{item.value}</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: COLORS.text, marginBottom: 4 }}>{item.label}</div>
-              <div style={{ fontSize: 12, color: COLORS.textDim }}>{item.sub}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Process flow */}
-        <div style={{
-          background: COLORS.bgCard,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 14,
-          padding: "32px 40px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: 12,
-        }}>
-          {["Feed Hopper", "Conveyor", "XRT Sensor", "Hyperspectral", "AI Classification", "Pneumatic Ejection", "Concentrate"].map((step, i, arr) => (
-            <div key={i} style={{ display: "flex", alignItems: "center", gap: 12, flex: i < arr.length - 1 ? 1 : "none" }}>
-              <div style={{
-                padding: "10px 14px",
-                background: i === arr.length - 1 ? COLORS.goldDim : "rgba(255,255,255,0.04)",
-                border: `1px solid ${i === arr.length - 1 ? COLORS.gold : COLORS.border}`,
-                borderRadius: 8,
-                fontSize: 11,
-                fontFamily: "'JetBrains Mono', monospace",
-                color: i === arr.length - 1 ? COLORS.gold : COLORS.textMuted,
-                whiteSpace: "nowrap",
-                letterSpacing: "0.02em",
-              }}>
-                {step}
-              </div>
-              {i < arr.length - 1 && (
-                <span style={{ color: COLORS.textDim, fontSize: 14 }}>→</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── TEAM ───────────────────────────────────────────────────
-function Team() {
-  const quals = [
-    {
-      icon: "🪨",
-      title: "Environmental Geoscience — University of Toronto",
-      desc: "Mineralogy, geochemistry, petrology, structural geology. Best Seminar Award for original research on industrial emissions bypass modelling."
-    },
-    {
-      icon: "⚡",
-      title: "Senior Data Quality Specialist — Cohere Inc.",
-      desc: "Large-scale data pipeline architecture, AI model quality assurance, and multi-modal dataset management at one of Canada's leading enterprise AI companies."
-    },
-    {
-      icon: "⚙️",
-      title: "441-Unit Fleet Operations — Oman Oilfields",
-      desc: "Designed and operated heavy equipment maintenance across six remote oilfield workshops. Drilling rigs, excavators, cranes, tankers. Six-year SLA, 53-page contractual framework."
-    },
-    {
-      icon: "🚌",
-      title: "300 Vehicle Reconfiguration — Dubai RTA",
-      desc: "Led articulated bus reconfiguration programme including crashworthiness certification and fleet-wide deployment for a sovereign transport authority."
-    },
-  ];
-
-  return (
-    <section id="team" style={{ padding: "120px 0" }}>
-      <Container>
-        <div style={{ maxWidth: 700, marginBottom: 56 }}>
-          <SectionLabel>Leadership</SectionLabel>
-          <SectionTitle>Built at the intersection of geoscience, AI, and industrial operations</SectionTitle>
-          <p style={{ fontSize: 15, lineHeight: 1.7, color: COLORS.textMuted }}>
-            Terrasope's founder combines geological domain expertise, applied AI engineering 
-            from Cohere Inc., and a track record of designing and delivering complex industrial 
-            service programmes in remote resource extraction environments.
-          </p>
-        </div>
-
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: 16,
-        }}>
-          {quals.map((q, i) => (
-            <div key={i} style={{
-              padding: "32px 28px",
-              background: COLORS.bgCard,
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: 14,
-              transition: "border-color 0.25s",
-            }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = COLORS.borderLight}
-            onMouseLeave={e => e.currentTarget.style.borderColor = COLORS.border}
-            >
-              <div style={{ fontSize: 28, marginBottom: 16 }}>{q.icon}</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: COLORS.white, marginBottom: 8, lineHeight: 1.35 }}>{q.title}</div>
-              <div style={{ fontSize: 13, color: COLORS.textMuted, lineHeight: 1.6 }}>{q.desc}</div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── CAREERS ────────────────────────────────────────────────
-function Careers() {
-  const roles = [
-    {
-      title: "Production Engineer — Mechanical",
-      location: "South India (Remote)",
-      type: "Full-time / Contract",
-      tags: ["Mechanical Design", "Fabrication", "Conveyor Systems", "SolidWorks"],
-      desc: "Design and fabricate sensor mounts, motorized core transport stages, ruggedized enclosures, and SortStack conveyor assemblies. You'll own the mechanical build from CAD through factory floor."
-    },
-    {
-      title: "3D Visualization & Animation Artist",
-      location: "South India (Remote)",
-      type: "Contract",
-      tags: ["Blender / 3ds Max", "Product Rendering", "Technical Animation"],
-      desc: "Create photorealistic renders of CoreSight and SortStack deployed at mine sites, plus process animations showing AI-driven core scanning and ore sorting in action. This visual package drives our go-to-market."
-    },
-    {
-      title: "ML / Computer Vision Engineer",
-      location: "British Columbia, Canada",
-      type: "Full-time (Month 6–9 start)",
-      tags: ["PyTorch", "Hyperspectral", "Sensor Fusion", "Edge AI"],
-      desc: "Build and deploy multi-sensor fusion models for lithological classification and grade estimation on NVIDIA Jetson. SR&ED-eligible R&D position with direct impact on product accuracy."
-    },
-    {
-      title: "Full-Stack / Dashboard Developer",
-      location: "South India (Remote)",
-      type: "Full-time / Contract",
-      tags: ["React", "Python", "Cloud Infra", "Real-time Data"],
-      desc: "Build the customer-facing geological intelligence dashboard — real-time sensor feeds, AI classification visualizations, digital core logs, and drill targeting recommendations."
-    },
-    {
-      title: "PCB & Embedded Systems Engineer",
-      location: "South India (Remote)",
-      type: "Contract",
-      tags: ["PCB Layout", "Embedded Linux", "Sensor Integration", "Jetson"],
-      desc: "Design custom PCBs for sensor interfacing, power management, and communications in a ruggedized field-deployable platform. Prototype through production."
-    },
-  ];
-
-  return (
-    <section id="careers" style={{
-      padding: "120px 0",
-      background: `linear-gradient(180deg, transparent, ${COLORS.cyanDim}, transparent)`,
-    }}>
-      <Container>
-        <div style={{ maxWidth: 700, marginBottom: 56 }}>
-          <SectionLabel color={COLORS.cyan}>Careers</SectionLabel>
-          <SectionTitle>Build mine-site intelligence with us</SectionTitle>
-          <p style={{ fontSize: 15, lineHeight: 1.7, color: COLORS.textMuted }}>
-            We're assembling a world-class engineering team across Canada and India. 
-            You'll work at the intersection of ruggedized hardware, AI, and real-world 
-            geological problems — shipping systems that deploy at remote drill sites 
-            and transform how minerals are discovered and extracted.
-          </p>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-          {roles.map((r, i) => (
-            <div key={i} style={{
-              padding: "28px 32px",
-              background: COLORS.bgCard,
-              border: `1px solid ${COLORS.border}`,
-              borderRadius: 14,
-              display: "grid",
-              gridTemplateColumns: "1fr auto",
-              gap: 24,
-              alignItems: "start",
-              transition: "all 0.25s",
-              cursor: "pointer",
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = COLORS.cyan;
-              e.currentTarget.style.background = COLORS.bgCardHover;
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = COLORS.border;
-              e.currentTarget.style.background = COLORS.bgCard;
-            }}
-            >
-              <div>
-                <div style={{ fontSize: 17, fontWeight: 600, color: COLORS.white, marginBottom: 6 }}>{r.title}</div>
-                <div style={{ fontSize: 13, color: COLORS.textMuted, marginBottom: 12 }}>{r.desc}</div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  {r.tags.map((t, j) => (
-                    <span key={j} style={{
-                      padding: "4px 10px",
-                      background: "rgba(255,255,255,0.04)",
-                      border: `1px solid ${COLORS.border}`,
-                      borderRadius: 6,
-                      fontSize: 11,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      color: COLORS.textDim,
-                    }}>{t}</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{ textAlign: "right", flexShrink: 0 }}>
-                <div style={{
-                  fontSize: 12,
-                  color: COLORS.cyan,
-                  fontWeight: 600,
-                  marginBottom: 4,
-                }}>{r.location}</div>
-                <div style={{
-                  fontSize: 11,
-                  color: COLORS.textDim,
-                }}>{r.type}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── CONTACT / FOOTER ───────────────────────────────────────
-function Contact() {
-  return (
-    <section id="contact" style={{ padding: "120px 0 60px" }}>
-      <Container>
-        <div style={{
-          background: COLORS.bgCard,
-          border: `1px solid ${COLORS.border}`,
-          borderRadius: 20,
-          padding: "64px 48px",
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-        }}>
-          <div style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 2,
-            background: `linear-gradient(90deg, ${COLORS.cyan}, ${COLORS.gold})`,
-          }} />
-          <SectionLabel>Get in Touch</SectionLabel>
-          <h2 style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: "clamp(24px, 3.5vw, 38px)",
-            color: COLORS.white,
-            marginBottom: 16,
-          }}>
-            Exploration company? Investor? Engineer?
-          </h2>
-          <p style={{ fontSize: 15, color: COLORS.textMuted, maxWidth: 520, margin: "0 auto 36px", lineHeight: 1.6 }}>
-            Whether you're planning a 2027 drill program, exploring investment in mine-site AI, 
-            or looking to join a team building at the frontier of geological intelligence — we'd like to hear from you.
-          </p>
-          <a href="mailto:hello@terrasope.com" style={{
-            display: "inline-flex",
-            padding: "14px 36px",
-            background: `linear-gradient(135deg, ${COLORS.gold}, ${COLORS.goldLight})`,
-            color: COLORS.bg,
-            borderRadius: 8,
-            fontSize: 15,
-            fontWeight: 600,
-            textDecoration: "none",
-            transition: "all 0.25s",
-          }}
-          onMouseEnter={e => { e.target.style.transform = "translateY(-2px)"; e.target.style.boxShadow = `0 12px 40px ${COLORS.goldDim}`; }}
-          onMouseLeave={e => { e.target.style.transform = "translateY(0)"; e.target.style.boxShadow = "none"; }}
-          >
-            hello@terrasope.com
-          </a>
-        </div>
-
-        {/* Footer */}
-        <div style={{
-          marginTop: 64,
-          paddingTop: 32,
-          borderTop: `1px solid ${COLORS.border}`,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}>
-          <div style={{
-            fontFamily: "'DM Serif Display', serif",
-            fontSize: 18,
-            color: COLORS.textDim,
-          }}>
-            <span style={{ color: COLORS.gold }}>Terra</span>sope
-          </div>
-          <div style={{ fontSize: 12, color: COLORS.textDim }}>
-            © 2026 Terrasope Inc. · British Columbia, Canada
-          </div>
-          <div style={{ display: "flex", gap: 24 }}>
-            {["Platform", "CoreSight", "SortStack", "Careers"].map(l => (
-              <a key={l} href={`#${l.toLowerCase()}`} style={{
-                fontSize: 12,
-                color: COLORS.textDim,
-                textDecoration: "none",
-                transition: "color 0.2s",
-              }}
-              onMouseEnter={e => e.target.style.color = COLORS.textMuted}
-              onMouseLeave={e => e.target.style.color = COLORS.textDim}
-              >
-                {l}
-              </a>
-            ))}
-          </div>
-        </div>
-      </Container>
-    </section>
-  );
-}
-
-// ─── APP ────────────────────────────────────────────────────
-export default function TerrasopeSite() {
-  return (
-    <div style={{ position: "relative", minHeight: "100vh" }}>
-      <style>{styles.global}</style>
-      <StrataBackground />
-      <div style={{ position: "relative", zIndex: 1 }}>
-        <Nav />
-        <Hero />
-        <Divider />
-        <Platform />
-        <Divider />
-        <CoreSight />
-        <SortStack />
-        <Divider />
-        <Team />
-        <Careers />
-        <Contact />
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-copy">&copy; 2026 Terrasope Inc. All rights reserved.</div>
+      <div class="footer-links">
+        <a href="#coresight">CoreSight</a>
+        <a href="#sortstack">SortStack</a>
+        <a href="#careers">Careers</a>
+        <a href="mailto:info@terrasope.com">Contact</a>
       </div>
     </div>
-  );
-}
+  </div>
+</footer>
+
+<script>
+// Theme
+const toggle = document.getElementById('themeToggle');
+const html = document.documentElement;
+const saved = localStorage.getItem('terrasope-theme');
+if (saved) html.setAttribute('data-theme', saved);
+
+toggle.addEventListener('click', () => {
+  const next = html.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('terrasope-theme', next);
+});
+
+// Scroll reveal with stagger
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.08, rootMargin: '0px 0px -20px 0px' });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+// Mobile menu
+const menuBtn = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+menuBtn.addEventListener('click', () => navLinks.classList.toggle('open'));
+navLinks.querySelectorAll('a').forEach(a =>
+  a.addEventListener('click', () => navLinks.classList.remove('open'))
+);
+
+// Smooth parallax on hero orbs
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (!ticking) {
+    requestAnimationFrame(() => {
+      const y = window.scrollY;
+      const orbs = document.querySelectorAll('.hero-orb');
+      orbs.forEach((orb, i) => {
+        const speed = i === 0 ? 0.03 : -0.02;
+        orb.style.transform = `translateY(${y * speed}px)`;
+      });
+      ticking = false;
+    });
+    ticking = true;
+  }
+});
+</script>
+</body>
+</html>
